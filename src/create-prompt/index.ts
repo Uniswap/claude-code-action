@@ -827,6 +827,9 @@ export async function createPrompt(
         );
       }
       claudeCommentId = modeContext.commentId.toString();
+    } else if (mode.name === "experimental-review" && modeContext.commentId) {
+      // Also extract comment ID for review mode when using sticky comments
+      claudeCommentId = modeContext.commentId.toString();
     }
 
     const preparedContext = prepareContext(
