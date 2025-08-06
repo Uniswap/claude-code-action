@@ -60,11 +60,25 @@ export async function createInitialComment(
         return isFromClaudeBot && hasNoIdentifier;
       });
       if (existingComment) {
+        // Extract existing content (excluding the identifier line)
+        let existingContent = existingComment.body || "";
+        
+        // Remove only the identifier line to get the actual content
+        existingContent = existingContent.replace(/^<!-- claude-action-id:.*? -->\n?/, '');
+        
+        // Check if there's a "Previous run:" section and extract only the most recent run
+        const previousRunMatch = existingContent.match(/^(\*\*Claude (?:finished|encountered).*?\*\*.*?)(?:\n\n---\n### Previous run:|$)/s);
+        
+        // Build new body: fresh working status + separator + only the most recent previous run
+        const bodyWithHistory = previousRunMatch && previousRunMatch[1]?.trim()
+          ? initialBody + "\n\n---\n### Previous run:\n" + previousRunMatch[1]
+          : initialBody;
+        
         response = await octokit.rest.issues.updateComment({
           owner,
           repo,
           comment_id: existingComment.id,
-          body: initialBody,
+          body: bodyWithHistory,
         });
       } else {
         // Create new comment if no existing one found
