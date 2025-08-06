@@ -513,6 +513,7 @@ function substitutePromptVariables(
         : "",
     EVENT_TYPE: eventData.eventName,
     IS_PR: eventData.isPR ? "true" : "false",
+    CLAUDE_COMMENT_ID: context.claudeCommentId ?? "",
   };
 
   let result = template;
