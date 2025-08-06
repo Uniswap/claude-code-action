@@ -6,7 +6,7 @@
  */
 
 import { appendFileSync } from "fs";
-import { createJobRunLink, createCommentBody } from "./common";
+import { createJobRunLink, createCommentBody, generateIdentifierString } from "./common";
 import {
   isPullRequestReviewCommentEvent,
   isPullRequestEvent,
@@ -41,7 +41,8 @@ export async function createInitialComment(
       });
       const existingComment = comments.data.find((comment) => {
         // Primary: Check for the specific identifier in the comment
-        if (comment.body?.includes(`<!-- claude-action-id:${identifier} -->`)) {
+        const identifierString = generateIdentifierString(identifier);
+        if (comment.body?.includes(identifierString)) {
           return true;
         }
         

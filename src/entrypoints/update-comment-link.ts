@@ -212,6 +212,7 @@ async function run() {
       branchName: shouldDeleteBranch || !branchLink ? undefined : claudeBranch,
       triggerUsername,
       errorDetails,
+      identifier: context.inputs.stickyCommentIdentifier,
     };
 
     const updatedBody = updateCommentBody(commentInput);

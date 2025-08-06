@@ -1,4 +1,5 @@
 import { GITHUB_SERVER_URL } from "../api/config";
+import { generateIdentifierString, extractIdentifier } from "./comments/common";
 
 export type ExecutionDetails = {
   cost_usd?: number;
@@ -16,6 +17,7 @@ export type CommentUpdateInput = {
   branchName?: string;
   triggerUsername?: string;
   errorDetails?: string;
+  identifier?: string;
 };
 
 export function ensureProperlyEncodedUrl(url: string): string | null {
@@ -77,15 +79,21 @@ export function updateCommentBody(input: CommentUpdateInput): string {
     branchName,
     triggerUsername,
     errorDetails,
+    identifier: passedIdentifier,
   } = input;
 
-  // Extract and preserve the hidden identifier if present
-  const identifierPattern = /^<!-- claude-action-id:.*? -->\n?/;
-  const identifierMatch = originalBody.match(identifierPattern);
-  const hiddenIdentifier = identifierMatch ? identifierMatch[0] : "";
+  // Determine the identifier to use:
+  // 1. Use passed identifier if available
+  // 2. Fall back to extracting from current body
+  // 3. Default to "default" if neither available
+  let identifier = passedIdentifier;
+  if (!identifier) {
+    identifier = extractIdentifier(originalBody) || "default";
+  }
 
   // Extract content from the original comment body
   // First, remove the hidden identifier if present
+  const identifierPattern = /^<!-- claude-action-id:.*? -->\n?/;
   let bodyContent = originalBody.replace(identifierPattern, "");
   // Then remove the "Claude Code is working…" or "Claude Code is working..." message
   const workingPattern = /Claude Code is working[…\.]{1,3}(?:\s*<img[^>]*>)?/i;
@@ -186,7 +194,8 @@ export function updateCommentBody(input: CommentUpdateInput): string {
   }
 
   // Build the new body with blank line between header and separator
-  // Start with the hidden identifier if present
+  // Always start with the identifier to ensure it's present
+  const hiddenIdentifier = generateIdentifierString(identifier) + "\n";
   let newBody = hiddenIdentifier + `${header}${links}`;
 
   // Add error details if available
