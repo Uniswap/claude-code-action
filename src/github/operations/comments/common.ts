@@ -24,8 +24,11 @@ export function createBranchLink(
 export function createCommentBody(
   jobRunLink: string,
   branchLink: string = "",
+  identifier: string = "default",
 ): string {
-  return `Claude Code is working… ${SPINNER_HTML}
+  // Always include an identifier for consistent comment tracking
+  const hiddenIdentifier = `<!-- claude-action-id:${identifier} -->\n`;
+  return `${hiddenIdentifier}Claude Code is working… ${SPINNER_HTML}
 
 I'll analyze this and get back to you.
 

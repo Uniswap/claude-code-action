@@ -23,7 +23,8 @@ export async function createInitialComment(
   const { owner, repo } = context.repository;
 
   const jobRunLink = createJobRunLink(owner, repo, context.runId);
-  const initialBody = createCommentBody(jobRunLink);
+  const identifier = context.inputs.stickyCommentIdentifier;
+  const initialBody = createCommentBody(jobRunLink, "", identifier);
 
   try {
     let response;
@@ -39,13 +40,23 @@ export async function createInitialComment(
         issue_number: context.entityNumber,
       });
       const existingComment = comments.data.find((comment) => {
-        const idMatch = comment.user?.id === CLAUDE_APP_BOT_ID;
-        const botNameMatch =
-          comment.user?.type === "Bot" &&
-          comment.user?.login.toLowerCase().includes("claude");
-        const bodyMatch = comment.body === initialBody;
-
-        return idMatch || botNameMatch || bodyMatch;
+        // Primary: Check for the specific identifier in the comment
+        if (comment.body?.includes(`<!-- claude-action-id:${identifier} -->`)) {
+          return true;
+        }
+        
+        // Fallback for backward compatibility with old comments that don't have identifiers
+        // Only use this if we don't find a comment with an identifier
+        const isFromClaudeBot = 
+          comment.user?.id === CLAUDE_APP_BOT_ID ||
+          (comment.user?.type === "Bot" && 
+           comment.user?.login === "claude-code-github-action[bot]");
+        
+        // Check if this is an old-style comment without any identifier
+        const hasNoIdentifier = !comment.body?.includes("<!-- claude-action-id:");
+        
+        // Match old comments from the Claude bot that don't have identifiers
+        return isFromClaudeBot && hasNoIdentifier;
       });
       if (existingComment) {
         response = await octokit.rest.issues.updateComment({

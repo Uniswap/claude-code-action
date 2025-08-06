@@ -71,6 +71,7 @@ describe("checkWritePermissions", () => {
       overridePrompt: "",
       branchPrefix: "claude/",
       useStickyComment: false,
+      stickyCommentIdentifier: "default",
       additionalPermissions: new Map(),
       useCommitSigning: false,
     },

@@ -75,6 +75,7 @@ type BaseContext = {
     baseBranch?: string;
     branchPrefix: string;
     useStickyComment: boolean;
+    stickyCommentIdentifier: string;
     additionalPermissions: Map<string, string>;
     useCommitSigning: boolean;
   };
@@ -132,6 +133,7 @@ export function parseGitHubContext(): GitHubContext {
       baseBranch: process.env.BASE_BRANCH,
       branchPrefix: process.env.BRANCH_PREFIX ?? "claude/",
       useStickyComment: process.env.USE_STICKY_COMMENT === "true",
+      stickyCommentIdentifier: process.env.STICKY_COMMENT_IDENTIFIER || process.env.GITHUB_WORKFLOW || "default",
       additionalPermissions: parseAdditionalPermissions(
         process.env.ADDITIONAL_PERMISSIONS ?? "",
       ),

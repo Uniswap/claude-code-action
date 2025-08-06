@@ -35,6 +35,7 @@ describe("prepareMcpConfig", () => {
       overridePrompt: "",
       branchPrefix: "",
       useStickyComment: false,
+      stickyCommentIdentifier: "default",
       additionalPermissions: new Map(),
       useCommitSigning: false,
     },

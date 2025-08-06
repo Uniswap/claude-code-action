@@ -26,6 +26,7 @@ const defaultInputs = {
   timeoutMinutes: 30,
   branchPrefix: "claude/",
   useStickyComment: false,
+  stickyCommentIdentifier: "default",
   additionalPermissions: new Map<string, string>(),
   useCommitSigning: false,
 };

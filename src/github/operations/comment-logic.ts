@@ -79,10 +79,17 @@ export function updateCommentBody(input: CommentUpdateInput): string {
     errorDetails,
   } = input;
 
+  // Extract and preserve the hidden identifier if present
+  const identifierPattern = /^<!-- claude-action-id:.*? -->\n?/;
+  const identifierMatch = originalBody.match(identifierPattern);
+  const hiddenIdentifier = identifierMatch ? identifierMatch[0] : "";
+
   // Extract content from the original comment body
-  // First, remove the "Claude Code is working…" or "Claude Code is working..." message
+  // First, remove the hidden identifier if present
+  let bodyContent = originalBody.replace(identifierPattern, "");
+  // Then remove the "Claude Code is working…" or "Claude Code is working..." message
   const workingPattern = /Claude Code is working[…\.]{1,3}(?:\s*<img[^>]*>)?/i;
-  let bodyContent = originalBody.replace(workingPattern, "").trim();
+  bodyContent = bodyContent.replace(workingPattern, "").trim();
 
   // Check if there's a PR link in the content
   let prLinkFromContent = "";
@@ -179,7 +186,8 @@ export function updateCommentBody(input: CommentUpdateInput): string {
   }
 
   // Build the new body with blank line between header and separator
-  let newBody = `${header}${links}`;
+  // Start with the hidden identifier if present
+  let newBody = hiddenIdentifier + `${header}${links}`;
 
   // Add error details if available
   if (actionFailed && errorDetails) {
