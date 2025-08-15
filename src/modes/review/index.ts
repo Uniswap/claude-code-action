@@ -41,7 +41,13 @@ export const reviewMode: Mode = {
 
     // For pull_request events, only trigger on specific actions
     if (isPullRequestEvent(context)) {
-      const allowedActions = ["opened", "synchronize", "reopened", "ready_for_review"];
+      const allowedActions = [
+        "opened",
+        "synchronize",
+        "reopened",
+        "ready_for_review",
+        "labeled",
+      ];
       const action = context.payload.action;
       return allowedActions.includes(action);
     }
